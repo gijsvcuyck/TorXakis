@@ -19,7 +19,7 @@
 # resolver:
 #  name: custom-snapshot
 #  location: "./custom-snapshot.yaml"
-resolver: lts-11.1
+resolver: lts-18.28
 ghc-variant: integersimple
 
 # User packages to be built.
@@ -41,34 +41,33 @@ ghc-variant: integersimple
 # non-dependency (i.e. a user package), and its test suites and benchmarks
 # will not be run. This is useful for tweaking upstream packages.
 packages:
-- location: sys/behave
-- location: sys/behavedefs
-- location: sys/behaveenv
-- location: sys/cnect
-- location: sys/core
-- location: sys/coreenv
-- location: sys/defs
-- location: sys/front
-- location: sys/lexregexxsd
-- location: sys/lpe
-- location: sys/server
-- location: sys/serverenv
-- location: sys/solve
-- location: sys/testsel
-- location: sys/ui
-- location: sys/value
-- location: sys/valexpr
+- sys/behave
+- sys/behavedefs
+- sys/behaveenv
+- sys/cnect
+- sys/core
+- sys/coreenv
+- sys/defs
+- sys/front
+- sys/lexregexxsd
+- sys/lpe
+- sys/server
+- sys/serverenv
+- sys/solve
+- sys/testsel
+- sys/ui
+- sys/value
+- sys/valexpr
 
 # Dependency packages to be pulled from upstream that are not in the resolver
 # (e.g., acme-missiles-0.3)
 extra-deps:
-- git: https://github.com/TorXakis/text-via-sockets.git
-  commit: e3228cd0407ec0d7991a544e154ea2def184fcae
+- git: https://github.com/gijsvcuyck/text-via-sockets.git
+  commit: 4ce4ecef00e53891f2005bc9f0d887cbb8e914c0
+- MissingH-1.5.0.1
 
 # Override default flag values for local packages and extra-deps
 flags:
-  text:
-    integer-simple: true
   hexpat:
     bundle: true
   hashable:
@@ -77,6 +76,8 @@ flags:
     integer-gmp: false
   scientific:
     integer-simple: true
+  # text:
+  #   integer-simple: true
 
 # Extra package databases containing global packages
 extra-package-dbs:
