@@ -7,7 +7,7 @@ See LICENSE at root directory of this repository.
 -- | Argument handling functionality for TorXakis.
 module ArgsHandling where
 
-import           Network
+import           Network.Socket
 import           System.Environment
 import           Text.Read
 
@@ -25,7 +25,7 @@ data TxsServerAddress = TxsServerAddress
     { -- | Host name of the TorXakis server.
       hostName :: HostName
       -- | Port identifier to connect to the TorXakis server.
-    , portId   :: Maybe PortID
+    , portId   :: Maybe PortNumber
     }
 
 type Error = String
@@ -46,8 +46,8 @@ getTxsUIArgs = do
     where
       getPortId :: [String] -> Maybe PortID
       getPortId []    = Nothing
-      getPortId (x:_) = PortNumber . fromInteger <$> readMaybe x
-
+      getPortId (x:_) = readMaybe x
+      
       removePort :: Maybe PortID -> [String] -> [String]
       removePort Nothing xs = xs
       removePort (Just _) (_:xs) = xs
