@@ -417,9 +417,10 @@ lpePar (TxsDefs.view -> ProcInst procIdInst chansInst _paramsInst) translatedPro
         -- translate operand to ProcInst if necessary
         (opProcInst, procDefs''') <- transformToProcInst operand procIdInst procDefs''
         -- translate to lpe
-        (TxsDefs.view -> ProcInst procIdLPE chansInstLPE paramsInstLPE, procDefs'''') <- lpe opProcInst translatedProcDefs procDefs'''
+        (tempexpr, tempprocdefs) <- lpe opProcInst translatedProcDefs procDefs'''
 
         let -- decompose translated ProcDef
+            (procIdLPE, chansInstLPE, paramsInstLPE, procDefs'''') = matchOrError (tempexpr, tempprocdefs)
             ProcDef chansDef paramsDef bexpr = fromMaybe (error "translateOperand: could not find the given procId") (Map.lookup procIdLPE procDefs'''')
 
             -- instantiate the channels
@@ -434,6 +435,12 @@ lpePar (TxsDefs.view -> ProcInst procIdInst chansInst _paramsInst) translatedPro
             bexpr'' = Subst.subst paramMap (Map.fromList []) bexpr'
         return (opNr+1, stepsOpParams ++ [(extractSteps bexpr'', paramsDefPrefixed)], paramsInsts ++ paramsInstLPE, procDefs'''')
           where
+            --Needed to fix partial pattern match above here, because fail is no longer a default part of the monad implementation, 
+            --and the Identity functor used with this function does not have a MonadFail implementation.
+            --A better sollution probably exists.
+            matchOrError :: (BExpr, ProcDefs) -> (ProcId, [ChanId], [VExpr], ProcDefs)
+            matchOrError (TxsDefs.view -> ProcInst procIdLPE chansInstLPE paramsInstLPE, procDefs'''') = (procIdLPE, chansInstLPE, paramsInstLPE, procDefs'''')
+            matchOrError _ = error "ERROR: unreachable code in LPE.hs reached"
             prefixVarId :: (EnvB.EnvB envb) => String -> VarId -> envb VarId
             prefixVarId prefix (VarId name' _ sort') = do
                 unid' <- EnvB.newUnid
