@@ -79,7 +79,6 @@ where
 import           Control.Arrow   (first)
 import qualified Data.Map        as Map
 import           Data.Maybe      (fromMaybe)
-import           Data.Monoid     ((<>))
 import qualified Data.Set        as Set
 import qualified Data.Text       as T
 import           Debug.Trace     as Trace
