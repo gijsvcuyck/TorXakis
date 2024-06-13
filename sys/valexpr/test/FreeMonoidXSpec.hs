@@ -35,8 +35,7 @@ instance Num a => Semigroup (PProduct a) where
 
 instance Num a => Monoid (PProduct a) where
     mempty = PProduct 1
-    mappend = (<>)
-
+    
 instance Fractional a => Fractional (PProduct a) where
     fromRational r = PProduct (fromRational r)
     (PProduct x) / (PProduct y) = PProduct $ x / y
