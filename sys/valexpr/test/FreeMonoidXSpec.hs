@@ -13,7 +13,6 @@ module FreeMonoidXSpec where
 import           Data.AEq        (AEq, (~==))
 import           Data.Foldable
 import           Data.List
-import           Data.Monoid     hiding (Product (..))
 import           Data.Proxy
 import           FreeMonoidX
 import           GHC.Exts
@@ -30,9 +29,12 @@ newtype PProduct a = PProduct {getPProduct :: a}
 instance AEq a => Eq (PProduct a) where
     (PProduct x) == (PProduct y) = x ~== y
 
+instance Num a => Semigroup (PProduct a) where
+    (PProduct x) <> (PProduct y) = PProduct $ x * y
+
 instance Num a => Monoid (PProduct a) where
     mempty = PProduct 1
-    (PProduct x) `mappend` (PProduct y) = PProduct $ x * y
+    
 
 instance Fractional a => Fractional (PProduct a) where
     fromRational r = PProduct (fromRational r)
