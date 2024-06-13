@@ -63,7 +63,7 @@ packages:
 # (e.g., acme-missiles-0.3)
 extra-deps:
 - git: https://github.com/gijsvcuyck/text-via-sockets.git
-  commit: 4ce4ecef00e53891f2005bc9f0d887cbb8e914c0
+  commit: d551ccecfe81c8f970e898e2a063d6d3fd32e359
 - MissingH-1.5.0.1
 
 # Override default flag values for local packages and extra-deps
