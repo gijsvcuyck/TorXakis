@@ -34,29 +34,30 @@ resolver: lts-18.28
 # non-dependency (i.e. a user package), and its test suites and benchmarks
 # will not be run. This is useful for tweaking upstream packages.
 packages:
-- location: sys/behave
-- location: sys/behavedefs
-- location: sys/behaveenv
-- location: sys/cnect
-- location: sys/core
-- location: sys/coreenv
-- location: sys/defs
-- location: sys/front
-- location: sys/lexregexxsd
-- location: sys/lpe
-- location: sys/server
-- location: sys/serverenv
-- location: sys/solve
-- location: sys/testsel
-- location: sys/ui
-- location: sys/value
-- location: sys/valexpr
+- sys/behave
+- sys/behavedefs
+- sys/behaveenv
+- sys/cnect
+- sys/core
+- sys/coreenv
+- sys/defs
+- sys/front
+- sys/lexregexxsd
+- sys/lpe
+- sys/server
+- sys/serverenv
+- sys/solve
+- sys/testsel
+- sys/ui
+- sys/value
+- sys/valexpr
 
 # Dependency packages to be pulled from upstream that are not in the resolver
 # (e.g., acme-missiles-0.3)
 extra-deps:
-- git: https://github.com/TorXakis/text-via-sockets.git
-  commit: e3228cd0407ec0d7991a544e154ea2def184fcae
+- git: https://github.com/gijsvcuyck/text-via-sockets.git
+  commit: d551ccecfe81c8f970e898e2a063d6d3fd32e359
+- MissingH-1.5.0.1
 
 # Extra package databases containing global packages
 extra-package-dbs: []

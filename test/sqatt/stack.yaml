@@ -42,7 +42,13 @@ packages:
 # (e.g., acme-missiles-0.3)
 
 # Override default flag values for local packages and extra-deps
-flags: {}
+flags:
+  hashable:
+    integer-gmp: false
+  integer-logarithms:
+    integer-gmp: false
+  scientific:
+    integer-simple: true
 
 # Extra package databases containing global packages
 extra-package-dbs: []
