@@ -59,8 +59,9 @@ packages:
 # Dependency packages to be pulled from upstream that are not in the resolver
 # (e.g., acme-missiles-0.3)
 extra-deps:
-- git: https://github.com/TorXakis/text-via-sockets.git
-  commit: e3228cd0407ec0d7991a544e154ea2def184fcae
+- git: https://github.com/gijsvcuyck/text-via-sockets.git
+  commit: d551ccecfe81c8f970e898e2a063d6d3fd32e359
+- MissingH-1.5.0.1
 
 flags:
   hexpat:

@@ -36,7 +36,7 @@ import           Control.Applicative
 import           Control.Arrow
 import           Control.Concurrent.Async
 import           Control.Exception
-import           Control.Foldl
+import           Control.Foldl hiding (either)
 import           Control.Monad.Except
 import           Control.Monad.Extra
 import           Criterion.Main
