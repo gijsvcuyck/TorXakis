@@ -154,11 +154,19 @@ javaCmd = addExeSuffix "java"
 javacCmd :: Text
 javacCmd = addExeSuffix "javac"
 
-txsServerCmd :: Text
-txsServerCmd = addExeSuffix "txsserver"
+-- Run the torxakis server version build from this repo, if it exists.
+-- Returns the command and list of needed arguments seperately.
+-- In order to use these as a regular shell command, the arguments here must be given before any other arguments
+-- Needs to be kept up to date with the pattern matching format used in checkStackCommand, or be restructured to be less fragile.
+txsServerCmd :: (Text, [Text])
+txsServerCmd = ("stack", ["exec", addExeSuffix "txsserver", "--"])
 
-txsUICmd :: Text
-txsUICmd = addExeSuffix "torxakis"
+-- Run the torxakis version build from this repo, if it exists.
+-- Returns the command and list of needed arguments seperately.
+-- In order to use these as a regular shell command, the arguments here must be given before any other arguments
+-- Needs to be kept up to date with the pattern matching format used in checkStackCommand, or be restructured to be less fragile.
+txsUICmd :: (Text, [Text])
+txsUICmd = ("stack", ["exec", addExeSuffix "torxakis", "--"])
 
 txsUILinePrefix :: Text
 txsUILinePrefix = "TXS >>  "
@@ -209,6 +217,14 @@ checkCommand cmd = do
     Nothing -> throwIO $ ProgramNotFound $ T.pack $ show cmd
     _       -> return ()
 
+-- | Check that the given command wrapped by stack exec exists in the search path of the host system.
+-- Takes List of arguments given to stack, with the assumption that this list follows the very specific format used in txsServerCmd and txsUICmd
+-- Throws an Exception: ExitFailure 1 if the command is not found within the stack environment.
+checkStackCommand :: [Text] -> IO ()
+checkStackCommand ("exec":command:"--":_tl) = do
+  _ <- single $ inproc "stack" ("exec":"which":"--":[command]) Turtle.empty
+  return ()
+checkStackCommand _ = error "checkStackCommand called with invalid argument"
 -- | Check that all the compilers are installed.
 --
 -- Throws an exception on failure.
@@ -217,7 +233,7 @@ checkCompilers = traverse_ checkCommand [javaCmd, javacCmd]
 
 -- | Check that the TorXakis UI and server programs are installed.
 checkTxsInstall :: IO ()
-checkTxsInstall = traverse_ checkCommand [txsUICmd, txsServerCmd]
+checkTxsInstall = traverse_ checkStackCommand [snd txsUICmd, snd txsServerCmd]
 
 -- * Compilation and testing
 
@@ -326,13 +342,13 @@ runTxsWithExample mLogDir ex delay = Concurrently $ do
         txsUIShell =
             case mUiLogDir of
                 Nothing ->
-                    either id id <$> inprocWithErr txsUICmd
-                                                        (port:imf)
+                    either id id <$> inprocWithErr (fst txsUICmd)
+                                                        (snd txsUICmd ++ (port:imf))
                                                         inLines
                 Just uiLogDir -> do
                     h <- appendonly $ uiLogDir </> "txsui.out.log"
-                    line <- either id id <$> inprocWithErr txsUICmd
-                                                           (port:imf)
+                    line <- either id id <$> inprocWithErr (fst txsUICmd)
+                                                           (snd txsUICmd ++ (port:imf))
                                                            inLines
                     liftIO $ TIO.hPutStrLn h (lineToText line)
                     return line
@@ -343,8 +359,8 @@ runTxsWithExample mLogDir ex delay = Concurrently $ do
     tErr = TestExpectationError $
               format ("Did not get expected result "%s)
                      (repr . expectedResult $ ex)
-    txsServerProc sLogDir =
-      runInprocNI ((</> "txsserver.out.log") <$> sLogDir) txsServerCmd
+    txsServerProc sLogDir args = Concurrently $
+      runInprocNI ((</> "txsserver.out.log") <$> sLogDir) (fst txsServerCmd) (snd txsServerCmd ++ args)
 
 -- | Run a process.
 runInproc :: Maybe FilePath   -- ^ Directory where the logs will be stored, or @Nothing@ if no logging is desired.
@@ -384,10 +400,10 @@ runTxsAsSut mLogDir modelFiles cmdsFile = do
   where
     txsUIProc imf port = Concurrently $
       let mCLogDir = (</> "txsui.SUT.out.log") <$> mLogDir in
-      runInproc mCLogDir txsUICmd (port:imf) (input cmdsFile)
+      runInproc mCLogDir (fst txsUICmd) (snd txsUICmd ++ (port:imf)) (input cmdsFile)
     txsServerProc port = Concurrently $
       let mCLogDir = (</> "txsserver.SUT.out.log") <$> mLogDir in
-      runInprocNI mCLogDir txsServerCmd [port]
+      runInprocNI mCLogDir (fst txsServerCmd) ((snd txsServerCmd)++[port])
 
 mkTest :: Maybe FilePath -> RunnableExample -> Test ()
 mkTest mLogDir (ExampleWithSut ex cSUT args) = do

@@ -3,6 +3,7 @@
 This folder contains the quality assurance tests for TorXakis.
 
 ## Integration tests
+NOTE: In the old version of torxakis, these tests where executed on the torxakis executable which is first found on the path. I.E. the globally installed version. This is changed to now prefer the version build locally using stack, and only then look at the rest of the path.
 
 To run the integration tests execute:
 
