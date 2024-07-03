@@ -16,4 +16,6 @@ main = do
     cd $ ".." </> ".."
     logDir <- mkLogDir "benchmarks-test-"
     -- cd $ "test" </> "sqatt"
-    hspec $ parallel $ testExampleSets (logDir) allExamples
+    --parallel causes nondeterministic crashes. Removed until it can be fixed.
+    --hspec $ parallel $ testExampleSets (logDir) allExamples
+    hspec $ testExampleSets (logDir) allExamples
