@@ -57,16 +57,17 @@ sequence10Ints = emptyExample
     , expectedResult = Pass
     }
 
-sequence10IntsCvc4 :: TxsExample
-sequence10IntsCvc4 = emptyExample
-    { exampleName = "sequence with a 10 integer channel (cvc4)"
-    , txsModelFiles = modelFiles
-    , txsCmdsFiles = [ seedSetupCmdFile
-                     , insqatt $ txsCmdPath BenchTest benchDir "Sequence10Ints"
-                     ]
-    , txsServerArgs = ["--smt-solver", "cvc4"]
-      , expectedResult = Pass
-    }
+-- cvc4 not currently supported.
+-- sequence10IntsCvc4 :: TxsExample
+-- sequence10IntsCvc4 = emptyExample
+--     { exampleName = "sequence with a 10 integer channel (cvc4)"
+--     , txsModelFiles = modelFiles
+--     , txsCmdsFiles = [ seedSetupCmdFile
+--                      , insqatt $ txsCmdPath BenchTest benchDir "Sequence10Ints"
+--                      ]
+--     , txsServerArgs = ["--smt-solver", "cvc4"]
+--       , expectedResult = Pass
+--     }
 
 sequence10IntsTD :: TxsExample
 sequence10IntsTD = emptyExample
@@ -83,6 +84,6 @@ benchmarksSet = TxsExampleSet "Sequence" [ do100Acts
                                          , do100IActs
                                          , do100DataActs
                                          , sequence10Ints
-                                         , sequence10IntsCvc4
+                                         --, sequence10IntsCvc4
                                          , sequence10IntsTD
                                          ]
