@@ -438,9 +438,12 @@ getRandomPort = randomRIO (10000, 60000)
 -- | Check that the file exists.
 pathMustExist :: FilePath -> Test ()
 pathMustExist path =
-  unlessM (testpath path) (throwError sqattErr)
-  where sqattErr =
-          FilePathError $ format ("file "%s%" does not exists ") (repr path)
+  unlessM (testpath path) $ do
+    workingdirpath <- pwd
+    let workingdir = either id id $ toText workingdirpath
+    throwError (sqattErr workingdir)
+  where sqattErr dir =
+          FilePathError (format ("file "%s%" does not exists. Looking in working directory: "%s) (repr path) (repr dir))
 
 -- | Retrieve all the file paths from an example
 exampleInputFiles :: TxsExample -> [FilePath]
