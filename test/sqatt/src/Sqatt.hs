@@ -159,14 +159,14 @@ javacCmd = addExeSuffix "javac"
 -- In order to use these as a regular shell command, the arguments here must be given before any other arguments
 -- Needs to be kept up to date with the pattern matching format used in checkStackCommand, or be restructured to be less fragile.
 txsServerCmd :: Text
-txsServerCmd = "txsserver"
+txsServerCmd = addExeSuffix "txsserver"
 
 -- Run the torxakis version build from this repo, if it exists.
 -- Returns the command and list of needed arguments seperately.
 -- In order to use these as a regular shell command, the arguments here must be given before any other arguments
 -- Needs to be kept up to date with the pattern matching format used in checkStackCommand, or be restructured to be less fragile.
 txsUICmd :: Text
-txsUICmd = "torxakis"
+txsUICmd = addExeSuffix "torxakis"
 
 txsUILinePrefix :: Text
 txsUILinePrefix = "TXS >>  "
@@ -208,7 +208,7 @@ checkSMTSolvers = do
   traverse_ checkCommand txsSupportedSolvers
   return ()
   where
-    txsSupportedSolvers = Prelude.map addExeSuffix ["z3","cvc4"]
+    txsSupportedSolvers = Prelude.map addExeSuffix ["z3"]
 
 -- | Check that the given command exists in the search path of the host system.
 checkCommand :: Text -> IO ()
@@ -394,7 +394,7 @@ runTxsAsSut mLogDir modelFiles cmdsFile = do
   where
     txsUIProc imf port = Concurrently $
       let mCLogDir = (</> "txsui.SUT.out.log") <$> mLogDir in
-      runInproc mCLogDir (txsUICmd (port:imf) (input cmdsFile)
+      runInproc mCLogDir txsUICmd (port:imf) (input cmdsFile)
     txsServerProc port = Concurrently $
       let mCLogDir = (</> "txsserver.SUT.out.log") <$> mLogDir in
       runInprocNI mCLogDir  txsServerCmd [port]
