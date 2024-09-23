@@ -14,7 +14,6 @@ import           Data.AEq        (AEq, (~==))
 import           Data.Foldable
 import           Data.List
 import           Data.Proxy
-import           Data.Semigroup  (Semigroup, (<>))
 import           FreeMonoidX
 import           GHC.Exts
 import           Sum             (SumTerm (..))
