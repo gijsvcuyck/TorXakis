@@ -351,8 +351,7 @@ runTxsWithExample mLogDir ex delay = Concurrently $ do
     tErr = TestExpectationError $
               format ("Did not get expected result "%s)
                      (repr . expectedResult $ ex)
-    txsServerProc sLogDir args = Concurrently $
-      runInprocNI ((</> "txsserver.out.log") <$> sLogDir)  txsServerCmd args
+    txsServerProc sLogDir args = runInprocNI ((</> "txsserver.out.log") <$> sLogDir)  txsServerCmd args
 
 -- | Run a process.
 runInproc :: Maybe FilePath   -- ^ Directory where the logs will be stored, or @Nothing@ if no logging is desired.
