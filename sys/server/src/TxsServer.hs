@@ -44,14 +44,14 @@ import           System.IO
 import           CmdLineParser
 import           ToProcdef
 import qualified TxsServerConfig     as SC
+import qualified BuildInfo
+import qualified TxsCore
 
 -- import from serverenv
 import qualified EnvServer           as IOS
 import qualified IfServer            as IFS
 
 -- import from core
-import qualified BuildInfo
-import qualified TxsCore
 import qualified VersionInfo
 import qualified EnvCore as IOC
 

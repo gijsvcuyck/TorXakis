@@ -17,8 +17,6 @@ library
 
   exposed-modules:      TxsCore
                       , CoreUtils
-                      , BuildInfo
-                      , VersionInfo
 
   other-modules:        Ioco
                       , Mapper
