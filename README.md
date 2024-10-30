@@ -83,7 +83,7 @@ stack setup --stack-yaml stack_linux.yaml
 stack install --stack-yaml stack_linux.yaml
 ```
 
-```stack install``` makes the resulting executable availiable globaly. For developing purposes, ```stack build``` can be used instead. The resulting executable can then be accessed using ```stack exec torxakis -- <torxakis_options> ```.
+```stack install``` makes the resulting executable available globaly. For developing purposes, ```stack build``` can be used instead. The resulting executable can then be accessed using ```stack exec torxakis -- <torxakis_options> ```.
 
 The reason for having two configuration files is that on Windows systems the
 libraries are linked statically, and thus we cannot use the `integer-gmp`
