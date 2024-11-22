@@ -60,8 +60,11 @@ packages:
 # (e.g., acme-missiles-0.3)
 extra-deps:
 - git: https://github.com/gijsvcuyck/text-via-sockets.git
-  commit: d551ccecfe81c8f970e898e2a063d6d3fd32e359
+  commit: 8817cb4210103d92ba96aca525ddcd08e1cc96e9
 - MissingH-1.5.0.1
+# Temporary import of deprecated package used by new compiler.
+# Can be removed if txs-compiler module is phased out again for happy based compiler.
+- Unique-0.4.7.9@sha256:7c37e22b7bb9df935c22112e67043177461aedcebe3a958854f6c0e9ecb54083,2155
 
 flags:
   hexpat:
