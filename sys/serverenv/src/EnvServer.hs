@@ -115,6 +115,7 @@ data  TxsModus = Noned
                  | Tested  TxsDefs.CnectDef
                  | Simuled TxsDefs.CnectDef
                  | Stepped
+     deriving  (Show)
 
 isNoned, isIdled, isInited        :: TxsModus -> Bool
 isTested, isSimuled, isStepped    :: TxsModus -> Bool

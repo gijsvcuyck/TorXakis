@@ -28,6 +28,7 @@ where
 import           Control.Concurrent
 import           Control.DeepSeq
 import           Control.Exception
+import Control.Monad.Except
 import           Control.Monad.State
 import qualified Data.Char           as Char
 import qualified Data.Either         as Either
@@ -79,6 +80,7 @@ import qualified SocketWorld         as World
 
 -- import from txs-compiler
 import           TorXakis.Compiler
+import qualified IfServer as IOS
 
 main :: IO ()
 main = withSocketsDo $ do
@@ -108,7 +110,8 @@ main = withSocketsDo $ do
                               $ SC.configuredParameters config
               }
           coreConfig = config
-      TxsCore.runTxsCore coreConfig cmdsIntpr initS
+      let errorhandler = (\e -> IOS.nack "ERROR" [show e] >> cmdQuit "") :: IOException -> IOS.IOS ()
+      TxsCore.runTxsCore coreConfig (catchError cmdsIntpr errorhandler) initS
       threadDelay 1000000    -- 1 sec delay on closing
       close sock
       hPutStrLn stderr "\nTXSSERVER >>  Closing  ..... \n"
@@ -136,76 +139,76 @@ cmdsIntpr = do
      (cmd, args) <- IFS.getCmd
      case cmd of
 -- ----------------------------------------------------------------------------------- modus --
-       "START"     |       IOS.isNoned    modus ->  cmdStart     args
-       "START"     | not $ IOS.isNoned    modus ->  cmdNoop      cmd
-       "QUIT"                                   ->  cmdQuit      args
-       "INIT"      |       IOS.isIdled    modus ->  cmdInit      args
-       "INIT"      | not $ IOS.isIdled    modus ->  cmdNoop      cmd
-       "TERMIT"    |       IOS.isGtIdled  modus ->  cmdTermit    args
-       "TERMIT"    | not $ IOS.isGtIdled  modus ->  cmdNoop      cmd
-       "STOP"      |       IOS.isGtInited modus ->  cmdStop      args
-       "STOP"      | not $ IOS.isGtInited modus ->  cmdNoop      cmd
+      "START"     |       IOS.isNoned    modus ->  cmdStart     args
+      "START"     | not $ IOS.isNoned    modus ->  cmdNoop      cmd
+      "QUIT"                                   ->  cmdQuit      args
+      "INIT"      |       IOS.isIdled    modus ->  cmdInit      args
+      "INIT"      | not $ IOS.isIdled    modus ->  cmdNoop      cmd
+      "TERMIT"    |       IOS.isGtIdled  modus ->  cmdTermit    args
+      "TERMIT"    | not $ IOS.isGtIdled  modus ->  cmdNoop      cmd
+      "STOP"      |       IOS.isGtInited modus ->  cmdStop      args
+      "STOP"      | not $ IOS.isGtInited modus ->  cmdNoop      cmd
 -- -------------------------------------------------------------------------------- settings --
-       "INFO"      |       IOS.isGtNoned  modus ->  cmdInfo      args
-       "INFO"      | not $ IOS.isGtNoned  modus ->  cmdNoop      cmd
-       "PARAM"     |       IOS.isGtNoned  modus ->  cmdParam     args
-       "PARAM"     | not $ IOS.isGtNoned  modus ->  cmdNoop      cmd
-       "SEED"      |       IOS.isGtNoned  modus ->  cmdSeed      args
-       "SEED"      | not $ IOS.isGtNoned  modus ->  cmdNoop      cmd
+      "INFO"      |       IOS.isGtNoned  modus ->  cmdInfo      args
+      "INFO"      | not $ IOS.isGtNoned  modus ->  cmdNoop      cmd
+      "PARAM"     |       IOS.isGtNoned  modus ->  cmdParam     args
+      "PARAM"     | not $ IOS.isGtNoned  modus ->  cmdNoop      cmd
+      "SEED"      |       IOS.isGtNoned  modus ->  cmdSeed      args
+      "SEED"      | not $ IOS.isGtNoned  modus ->  cmdNoop      cmd
 -- ------------------------------------------------------------------------------------ data --
-       "VAR"       |       IOS.isGtIdled  modus ->  cmdVar       args
-       "VAR"       | not $ IOS.isGtIdled  modus ->  cmdNoop      cmd
-       "VAL"       |       IOS.isGtIdled  modus ->  cmdVal       args
-       "VAL"       | not $ IOS.isGtIdled  modus ->  cmdNoop      cmd
-       "EVAL"      |       IOS.isGtIdled  modus ->  cmdEval      args
-       "EVAL"      | not $ IOS.isGtIdled  modus ->  cmdNoop      cmd
-       "SOLVE"     |       IOS.isGtIdled  modus ->  cmdSolve     args "sol"
-       "SOLVE"     | not $ IOS.isGtIdled  modus ->  cmdNoop      cmd
-       "UNISOLVE"  |       IOS.isGtIdled  modus ->  cmdSolve     args "uni"
-       "UNISOLVE"  | not $ IOS.isGtIdled  modus ->  cmdNoop      cmd
-       "RANSOLVE"  |       IOS.isGtIdled  modus ->  cmdSolve     args "ran"
-       "RANSOLVE"  | not $ IOS.isGtIdled  modus ->  cmdNoop      cmd
+      "VAR"       |       IOS.isGtIdled  modus ->  cmdVar       args
+      "VAR"       | not $ IOS.isGtIdled  modus ->  cmdNoop      cmd
+      "VAL"       |       IOS.isGtIdled  modus ->  cmdVal       args
+      "VAL"       | not $ IOS.isGtIdled  modus ->  cmdNoop      cmd
+      "EVAL"      |       IOS.isGtIdled  modus ->  cmdEval      args
+      "EVAL"      | not $ IOS.isGtIdled  modus ->  cmdNoop      cmd
+      "SOLVE"     |       IOS.isGtIdled  modus ->  cmdSolve     args "sol"
+      "SOLVE"     | not $ IOS.isGtIdled  modus ->  cmdNoop      cmd
+      "UNISOLVE"  |       IOS.isGtIdled  modus ->  cmdSolve     args "uni"
+      "UNISOLVE"  | not $ IOS.isGtIdled  modus ->  cmdNoop      cmd
+      "RANSOLVE"  |       IOS.isGtIdled  modus ->  cmdSolve     args "ran"
+      "RANSOLVE"  | not $ IOS.isGtIdled  modus ->  cmdNoop      cmd
 -- ----- ------------------------------------------------------------------------------ exec --
-       "TESTER"    |       IOS.isInited   modus ->  cmdTester    args
-       "TESTER"    | not $ IOS.isInited   modus ->  cmdNoop      cmd
-       "SIMULATOR" |       IOS.isInited   modus ->  cmdSimulator args
-       "SIMULATOR" | not $ IOS.isInited   modus ->  cmdNoop      cmd
-       "STEPPER"   |       IOS.isInited   modus ->  cmdStepper   args
-       "STEPPER"   | not $ IOS.isInited   modus ->  cmdNoop      cmd
+      "TESTER"    |       IOS.isInited   modus ->  cmdTester    args
+      "TESTER"    | not $ IOS.isInited   modus ->  cmdNoop      cmd
+      "SIMULATOR" |       IOS.isInited   modus ->  cmdSimulator args
+      "SIMULATOR" | not $ IOS.isInited   modus ->  cmdNoop      cmd
+      "STEPPER"   |       IOS.isInited   modus ->  cmdStepper   args
+      "STEPPER"   | not $ IOS.isInited   modus ->  cmdNoop      cmd
 -- -------------------------------------------------------------------- test, simulate, step --
-       "TEST"      |       IOS.isTested   modus ->  cmdTest      args
-       "TEST"      | not $ IOS.isTested   modus ->  cmdNoop      cmd
-       "SIM"       |       IOS.isSimuled  modus ->  cmdSim       args
-       "SIM"       | not $ IOS.isSimuled  modus ->  cmdNoop      cmd
-       "STEP"      |       IOS.isStepped  modus ->  cmdStep      args
-       "STEP"      | not $ IOS.isStepped  modus ->  cmdNoop      cmd
+      "TEST"      |       IOS.isTested   modus ->  cmdTest      args
+      "TEST"      | not $ IOS.isTested   modus ->  cmdNoop      cmd
+      "SIM"       |       IOS.isSimuled  modus ->  cmdSim       args
+      "SIM"       | not $ IOS.isSimuled  modus ->  cmdNoop      cmd
+      "STEP"      |       IOS.isStepped  modus ->  cmdStep      args
+      "STEP"      | not $ IOS.isStepped  modus ->  cmdNoop      cmd
 -- ----------------------------------------------------------------------------- btree state --
-       "SHOW"      |       IOS.isGtIdled  modus ->  cmdShow      args
-       "SHOW"      | not $ IOS.isGtIdled  modus ->  cmdNoop      cmd
-       "GOTO"      |       IOS.isGtInited modus ->  cmdGoTo      args
-       "GOTO"      | not $ IOS.isGtInited modus ->  cmdNoop      cmd
-       "PATH"      |       IOS.isGtInited modus ->  cmdPath      args
-       "PATH"      | not $ IOS.isGtInited modus ->  cmdNoop      cmd
-       "TRACE"     |       IOS.isGtInited modus ->  cmdTrace     args
-       "TRACE"     | not $ IOS.isGtInited modus ->  cmdNoop      cmd
-       "MENU"      |       IOS.isGtInited modus ->  cmdMenu      args
-       "MENU"      | not $ IOS.isGtInited modus ->  cmdNoop      cmd
-       "MAP"       |       IOS.isTested   modus ->  cmdMap       args
-       "MAP"       |       IOS.isSimuled  modus ->  cmdMap       args
-       "MAP"       |       IOS.isStepped  modus ->  cmdNoop      cmd
-       "MAP"       | not $ IOS.isGtInited modus ->  cmdNoop      cmd
-       "NCOMP"     |       IOS.isInited   modus ->  cmdNComp     args
-       "NCOMP"     | not $ IOS.isInited   modus ->  cmdNoop      cmd
-       "LPE"       |       IOS.isInited   modus ->  cmdLPE       args
-       "LPE"       | not $ IOS.isInited   modus ->  cmdNoop      cmd
-       "LPEOP"     |       IOS.isInited   modus ->  cmdLPEOp     args
-       "LPEOP"     | not $ IOS.isInited   modus ->  cmdNoop      cmd
-       "LPEQ"      |       IOS.isInited   modus ->  cmdLPEQ      args
-       "LPEQ"      | not $ IOS.isInited   modus ->  cmdNoop      cmd
-       "MERGE"     |       IOS.isInited   modus ->  cmdMerge     args
-       "MERGE"     | not $ IOS.isInited   modus ->  cmdNoop      cmd
-       _                                        ->  cmdUnknown   cmd
-
+      "SHOW"      |       IOS.isGtIdled  modus ->  cmdShow      args
+      "SHOW"      | not $ IOS.isGtIdled  modus ->  cmdNoop      cmd
+      "GOTO"      |       IOS.isGtInited modus ->  cmdGoTo      args
+      "GOTO"      | not $ IOS.isGtInited modus ->  cmdNoop      cmd
+      "PATH"      |       IOS.isGtInited modus ->  cmdPath      args
+      "PATH"      | not $ IOS.isGtInited modus ->  cmdNoop      cmd
+      "TRACE"     |       IOS.isGtInited modus ->  cmdTrace     args
+      "TRACE"     | not $ IOS.isGtInited modus ->  cmdNoop      cmd
+      "MENU"      |       IOS.isGtInited modus ->  cmdMenu      args
+      "MENU"      | not $ IOS.isGtInited modus ->  cmdNoop      cmd
+      "MAP"       |       IOS.isTested   modus ->  cmdMap       args
+      "MAP"       |       IOS.isSimuled  modus ->  cmdMap       args
+      "MAP"       |       IOS.isStepped  modus ->  cmdNoop      cmd
+      "MAP"       | not $ IOS.isGtInited modus ->  cmdNoop      cmd
+      "NCOMP"     |       IOS.isInited   modus ->  cmdNComp     args
+      "NCOMP"     | not $ IOS.isInited   modus ->  cmdNoop      cmd
+      "LPE"       |       IOS.isInited   modus ->  cmdLPE       args
+      "LPE"       | not $ IOS.isInited   modus ->  cmdNoop      cmd
+      "LPEOP"     |       IOS.isInited   modus ->  cmdLPEOp     args
+      "LPEOP"     | not $ IOS.isInited   modus ->  cmdNoop      cmd
+      "LPEQ"      |       IOS.isInited   modus ->  cmdLPEQ      args
+      "LPEQ"      | not $ IOS.isInited   modus ->  cmdNoop      cmd
+      "MERGE"     |       IOS.isInited   modus ->  cmdMerge     args
+      "MERGE"     | not $ IOS.isInited   modus ->  cmdNoop      cmd
+      _                                        ->  cmdUnknown   cmd
+     
 -- ----------------------------------------------------------------------------------------- --
 -- torxakis server individual command processing
 
