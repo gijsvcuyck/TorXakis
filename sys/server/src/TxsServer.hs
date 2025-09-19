@@ -80,8 +80,6 @@ import qualified SocketWorld         as World
 
 -- import from txs-compiler
 import           TorXakis.Compiler
-import qualified IfServer as IOS
-
 main :: IO ()
 main = withSocketsDo $ do
   hSetBuffering stderr NoBuffering     -- alt: LineBuffering
@@ -110,7 +108,7 @@ main = withSocketsDo $ do
                               $ SC.configuredParameters config
               }
           coreConfig = config
-      let errorhandler = (\e -> IOS.nack "ERROR" [show e] >> cmdQuit "") :: IOException -> IOS.IOS ()
+      let errorhandler = (\e -> IFS.nack "ERROR" [show e] >> cmdQuit "") :: IOException -> IOS.IOS ()
       TxsCore.runTxsCore coreConfig (catchError cmdsIntpr errorhandler) initS
       threadDelay 1000000    -- 1 sec delay on closing
       close sock
