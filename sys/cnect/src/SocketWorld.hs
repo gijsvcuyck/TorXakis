@@ -128,13 +128,13 @@ openCnectClientSockets conndefs = do
                        | ConnDfroW cfrow hfrow pfrow var'  vexps <- conndefs
                        , (hfrow,pfrow) `notElem` [(h,p)|(_,_,_,_,_,_,h,p)<-tofrosocks]
                        ]
-     tofroConns <- sequence [ TVS.connectTo (T.unpack hst) (show prt)
+     tofroConns <- sequence [putStrLn ("Now connecting on host: " ++  show hst ++ " using port: " ++ show prt) *> TVS.connectTo (T.unpack hst) (show prt) <* putStrLn "Connection established"
                              | (_, _, _, _, _, _, hst, prt) <- tofrosocks
                              ]
-     toConns    <- sequence [ TVS.connectTo (T.unpack hst) (show prt)
+     toConns    <- sequence [putStrLn ("Now connecting on host: " ++  show hst ++ " using port: " ++ show prt) *> TVS.connectTo (T.unpack hst) (show prt) <* putStrLn "Connection established"
                              | (_, _, _, hst, prt) <- tosocks
                              ]
-     froConns   <- sequence [ TVS.connectTo (T.unpack hst) (show prt)
+     froConns   <- sequence [putStrLn ("Now connecting on host: " ++  show hst ++ " using port: " ++ show prt) *> TVS.connectTo (T.unpack hst) (show prt) <* putStrLn "Connection established"
                              | (_, _, _, hst, prt) <- frosocks
                              ]
      let towhdls  = [ ConnHtoW ctow c vars' vexp
