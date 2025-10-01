@@ -198,19 +198,22 @@ import qualified SortId
 import qualified SortOf
 import Constant
 import VarId
+import Control.Exception (SomeException,catch)
 
 -- | TorXakis core main api -- start
-runTxsCore :: Config -> StateT s IOC.IOC a -> s -> IO ()
+runTxsCore :: Config -> StateT s IOC.IOC a -> s -> IO (Maybe SomeException)
 runTxsCore initConfig ctrl s0  =  do
-      _ <- runStateT (runTxsCtrl ctrl s0)
-              IOC.EnvC { IOC.config = initConfig
-                        , IOC.unid   = 0
-                        , IOC.params = Config.updateParamVals -- updating parameters...
-                                        initParams -- ...defined in EnvCore and SolveDefs
-                                        $ Config.configuredParameters initConfig
-                        , IOC.state  = initState
+      let computation = runStateT (runTxsCtrl ctrl s0)
+                        IOC.EnvC { IOC.config = initConfig
+                                  , IOC.unid   = 0
+                                  , IOC.params = Config.updateParamVals -- updating parameters...
+                                                  initParams -- ...defined in EnvCore and SolveDefs
+                                                  $ Config.configuredParameters initConfig
+                                  , IOC.state  = initState
                         }
-      return ()
+      let drop_result = fmap (const Nothing)
+      let errorhandler = (\e -> return . Just $ (e::SomeException))
+      catch (drop_result computation) errorhandler
       where initState = IOC.Noning
             initParams =
                Map.union ParamCore.initParams Solve.Params.initParams

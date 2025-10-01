@@ -37,6 +37,8 @@ import           Control.Concurrent.Async
 import           Control.Monad.State
 import qualified Data.Text           as T
 import           System.Timeout
+import           System.IO
+
 
 import           Network.TextViaSockets (Connection)
 import qualified Network.TextViaSockets as TVS
@@ -128,13 +130,13 @@ openCnectClientSockets conndefs = do
                        | ConnDfroW cfrow hfrow pfrow var'  vexps <- conndefs
                        , (hfrow,pfrow) `notElem` [(h,p)|(_,_,_,_,_,_,h,p)<-tofrosocks]
                        ]
-     tofroConns <- sequence [putStrLn ("Now connecting on host: " ++  show hst ++ " using port: " ++ show prt) *> TVS.connectTo (T.unpack hst) (show prt) <* putStrLn "Connection established"
+     tofroConns <- sequence [hPutStrLn stderr ("Now connecting to host: " ++  show hst ++ " using port: " ++ show prt) *> TVS.connectTo (T.unpack hst) (show prt) <* hPutStrLn stderr "Connection established"
                              | (_, _, _, _, _, _, hst, prt) <- tofrosocks
                              ]
-     toConns    <- sequence [putStrLn ("Now connecting on host: " ++  show hst ++ " using port: " ++ show prt) *> TVS.connectTo (T.unpack hst) (show prt) <* putStrLn "Connection established"
+     toConns    <- sequence [hPutStrLn stderr ("Now connecting to host: " ++  show hst ++ " using port: " ++ show prt) *> TVS.connectTo (T.unpack hst) (show prt) <* hPutStrLn stderr "Connection established"
                              | (_, _, _, hst, prt) <- tosocks
                              ]
-     froConns   <- sequence [putStrLn ("Now connecting on host: " ++  show hst ++ " using port: " ++ show prt) *> TVS.connectTo (T.unpack hst) (show prt) <* putStrLn "Connection established"
+     froConns   <- sequence [hPutStrLn stderr ("Now connecting to host: " ++  show hst ++ " using port: " ++ show prt) *> TVS.connectTo (T.unpack hst) (show prt) <* hPutStrLn stderr "Connection established"
                              | (_, _, _, hst, prt) <- frosocks
                              ]
      let towhdls  = [ ConnHtoW ctow c vars' vexp

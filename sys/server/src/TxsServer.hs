@@ -108,8 +108,9 @@ main = withSocketsDo $ do
                               $ SC.configuredParameters config
               }
           coreConfig = config
-      let errorhandler = (\e -> IFS.nack "ERROR" [show e] >> cmdQuit "") :: IOException -> IOS.IOS ()
-      TxsCore.runTxsCore coreConfig (catchError cmdsIntpr errorhandler) initS
+      let io_errorhandler = (\e -> IFS.nack "ERROR" [show e] >> cmdQuit "") :: IOException -> IOS.IOS () -- handles IOExceptions, but no crashes in the parser, evaluator, etc
+      maybe_exception <- TxsCore.runTxsCore coreConfig (catchError cmdsIntpr io_errorhandler) initS
+      maybe (return ()) (\e -> hPutStrLn hs "MACK ERROR" >> hPutStrLn hs (unlines $ map ("MACK " ++) (lines $ show e))) maybe_exception -- handles all remaining uncaught exceptions, and forwards them to the UI
       threadDelay 1000000    -- 1 sec delay on closing
       close sock
       hPutStrLn stderr "\nTXSSERVER >>  Closing  ..... \n"
